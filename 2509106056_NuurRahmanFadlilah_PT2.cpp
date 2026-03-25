@@ -217,7 +217,7 @@ int main() {
             lihat(dataKereta, jumlahKereta);
             lanjutsekalianbersih();
         } 
-        else if (pilih == 6) {;
+        else if (pilih == 6) {
             urutHarga(dataKereta, jumlahKereta);
             lihat(dataKereta, jumlahKereta);
             lanjutsekalianbersih();
