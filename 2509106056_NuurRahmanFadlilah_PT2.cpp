@@ -63,8 +63,8 @@ void tambah(Kereta* arr, int& total) {
 
 void cariRute(Kereta* arr, int total) {
     string a, b;
-    cin.ignore();
     cout << "\nasal: ";
+    cin.ignore();
     getline(cin, a);
     cout << "tujuan: ";
     getline(cin, b);
