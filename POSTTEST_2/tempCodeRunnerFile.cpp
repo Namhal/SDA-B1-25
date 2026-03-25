@@ -226,13 +226,12 @@ void cariNamaBoyer(Kereta* arr, int total) {
     getline(cin, cariNama);
     bool ketemu = false;
     for (int i = 0; i < total; i++) {
-        cout << "Pengecekan kereta ke-" << i + 1 << endl;
         int hasil = boyerCari((*(arr + i)).nama, cariNama);
+        cout << "Pengecekan kereta ke-" << i + 1 << endl;
         if (hasil != -1) {
             cout << "Ketemu: " << (*(arr + i)).nama << endl;
             cout << (*(arr + i)).asal << " ke " << (*(arr + i)).tujuan << endl;
             ketemu = true;
-            break;
         }
     }
     if (!ketemu) {
