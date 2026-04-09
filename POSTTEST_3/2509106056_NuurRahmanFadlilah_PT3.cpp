@@ -52,14 +52,14 @@ void enqueue(Tiket t) {
     cout << "Masuk antrian\n";
 }
 
-Tiket dequeue() {
+bool dequeue(Tiket* hasil) {
     if (front == -1 || front > rear) {
         cout << "Antrian kosong\n";
-        return {"", ""};
+        return false;
     }
-    Tiket t = *(antrian + front);
+    *hasil = *(antrian + front);
     front++;
-    return t;
+    return true;
 }
 
 void tampilAntrian() {
@@ -294,8 +294,8 @@ int main() {
             lanjutsekalianbersih();
         }
         else if (pilih == 8) {
-            Tiket t = dequeue();
-            if (t.namaPenumpang != "") {
+            Tiket t;
+            if (dequeue(&t)) {
                 cout << "Diproses: " << t.namaPenumpang << endl;
                 push(t);
             }
