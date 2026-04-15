@@ -196,7 +196,7 @@ void cariRute(Kereta* arr, int total) {
     }
     cout << "Tidak ditemukan\n";
 }
-
+// zzz
 void diurutmerge(Kereta* arr, int l, int r) {
     if (l < r) {
         int m = (l + r) / 2;
