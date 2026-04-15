@@ -19,14 +19,17 @@ struct Tiket {
     string rute;
 };
 
+struct Node {
+    Tiket data;
+    Node* next;
+};
+
+Node* front = NULL;
+Node* rear = NULL;
+Node* top = NULL;
+
 Kereta dataKereta[MAX];
 int jumlahKereta = 0;
-
-Tiket antrian[MAX];//queue
-int front = -1, rear = -1;
-
-Tiket riwayat[MAX];//stack
-int top = -1;
 
 void lanjutsekalianbersih() {
     cout << "\nKlik enter untuk lanjut";
@@ -42,75 +45,84 @@ void swapKereta(Kereta* a, Kereta* b) {
 }
 
 void enqueue(Tiket t) {
-    if (rear == MAX - 1) {
-        cout << "Antrian penuh\n";
-        return;
+    Node* n = new Node;
+    n->data = t;
+    n->next = NULL;
+    if (front == NULL) {
+        front = n;
+        rear = n;
+    } else {
+        rear->next = n;
+        rear = n;
     }
-    if (front == -1) front = 0;
-    rear++;
-    *(antrian + rear) = t;
     cout << "Masuk antrian\n";
 }
 
 bool dequeue(Tiket* hasil) {
-    if (front == -1 || front > rear) {
-        cout << "Antrian kosong\n";
+    if (front == NULL) {
+        cout << "Kosong\n";
         return false;
+    } else {
+        Node* temp = front;
+        *hasil = temp->data;
+        front = front->next;
+        delete temp;
+        if (front == NULL) {
+            rear = NULL;
+        }
+        return true;
     }
-    *hasil = *(antrian + front);
-    front++;
-    return true;
 }
 
 void tampilAntrian() {
-    if (front == -1 || front > rear) {
+    if (front == NULL) {
         cout << "Antrian kosong\n";
         return;
     }
     cout << "\n=== ANTRIAN ===\n";
-    Tiket* p = antrian;
-    for (int i = front; i <= rear; i++) {
-        cout << (p + i)->namaPenumpang << " - " << (p + i)->rute << endl;
+    Node* bantu = front;
+    while (bantu != NULL) {
+        cout << bantu->data.namaPenumpang << " - " << bantu->data.rute << endl;
+        bantu = bantu->next;
     }
 }
 
 void push(Tiket t) {
-    if (top == MAX - 1) {
-        cout << "Riwayat penuh\n";
-        return;
-    }
-    top++;
-    *(riwayat + top) = t;
+    Node* baru = new Node{t, top};
+    top = baru;
 }
 
 void pop() {
-    if (top == -1) {
+    if (top == NULL) {
         cout << "Riwayat kosong\n";
         return;
     }
-    cout << "Hapus transaksi: " << (*(riwayat + top)).namaPenumpang << endl;
-    top--;
+    Node* hapus = top;
+    cout << "Hapus transaksi: " << hapus->data.namaPenumpang << endl;
+    top = top->next;
+    delete hapus;
 }
 
 void tampilRiwayat() {
-    if (top == -1) {
+    if (top == NULL) {
         cout << "Riwayat kosong\n";
         return;
     }
     cout << "\n=== RIWAYAT ===\n";
-    Tiket* p = riwayat;
-    for (int i = top; i >= 0; i--) {
-        cout << (p + i)->namaPenumpang << " - " << (p + i)->rute << endl;
+    Node* bantu = top;
+    while (bantu != NULL) {
+        cout << bantu->data.namaPenumpang << " - " << bantu->data.rute << endl;
+        bantu = bantu->next;
     }
 }
 
 void peek() {
-    if (front != -1 && front <= rear)
-        cout << "Depan antrian: " << (*(antrian + front)).namaPenumpang << endl;
+    if (front != NULL)
+        cout << "Depan antrian: " << front->data.namaPenumpang << endl;
     else
         cout << "Antrian kosong\n";
-    if (top != -1)
-        cout << "Terakhir riwayat: " << (*(riwayat + top)).namaPenumpang << endl;
+    if (top != NULL)
+        cout << "Terakhir riwayat: " << top->data.namaPenumpang << endl;
     else
         cout << "Riwayat kosong\n";
 }
@@ -122,26 +134,15 @@ void lihat(Kereta* arr, int total) {
     }
     cout << "\nJADWAL\n";
     cout << left << setw(6) << "No" << setw(14) << "Nama" << setw(12) << "Asal" << setw(12) << "Tujuan" << setw(10) << "Harga" << endl;
-    Kereta* p = arr;
+
     for (int i = 0; i < total; i++) {
-        cout << left << setw(6) << (*(p + i)).nomor << setw(14) << (*(p + i)).nama << setw(12) << (*(p + i)).asal << setw(12) << (*(p + i)).tujuan << setw(10) << (*(p + i)).harga << endl;
+        cout << left << setw(6) << arr[i].nomor << setw(14) << arr[i].nama << setw(12) << arr[i].asal << setw(12) << arr[i].tujuan << setw(10) << arr[i].harga << endl;
     }
 }
 
 int caripakeSearch(Kereta* arr, int total, int key) {
-    int step = 1;
-    while (step * step < total) {
-        step++;
-    }
-    int awal = 0;
-    while (awal < total && (*(arr + (step < total ? step : total) - 1)).nomor < key) {
-        awal = step;
-        step += step;
-        if (awal >= total) return -1;
-    }
-    int batas = (step < total ? step : total);
-    for (int i = awal; i < batas; i++) {
-        if ((*(arr + i)).nomor == key) {
+    for (int i = 0; i < total; i++) {
+        if (arr[i].nomor == key) {
             return i;
         }
     }
@@ -152,12 +153,10 @@ void cariNomor(Kereta* arr, int total) {
     int k;
     cout << "\nnomor: ";
     cin >> k;
-    cout << "Perjalanan kereta ";
+
     int h = caripakeSearch(arr, total, k);
     if (h != -1) {
-        cout << (*(arr + h)).nama << " ";
-        cout << (*(arr + h)).asal << " ke ";
-        cout << (*(arr + h)).tujuan << endl;
+        cout << arr[h].nama << " " << arr[h].asal << " ke " << arr[h].tujuan << endl;
     } else {
         cout << "tidak ada\n";
     }
@@ -169,16 +168,16 @@ void tambah(Kereta* arr, int& total) {
         return;
     }
     cout << "\nnomor: ";
-    cin >> (*(arr + total)).nomor;
+    cin >> arr[total].nomor;
     cin.ignore();
     cout << "nama: ";
-    getline(cin, (*(arr + total)).nama);
+    getline(cin, arr[total].nama);
     cout << "asal: ";
-    getline(cin, (*(arr + total)).asal);
+    getline(cin, arr[total].asal);
     cout << "tujuan: ";
-    getline(cin, (*(arr + total)).tujuan);
+    getline(cin, arr[total].tujuan);
     cout << "harga: ";
-    cin >> (*(arr + total)).harga;
+    cin >> arr[total].harga;
     total++;
 }
 
@@ -189,10 +188,9 @@ void cariRute(Kereta* arr, int total) {
     getline(cin, a);
     cout << "tujuan: ";
     getline(cin, b);
-
     for (int i = 0; i < total; i++) {
-        if ((*(arr + i)).asal == a && (*(arr + i)).tujuan == b) {
-            cout << "Ditemukan, harga: " << (*(arr + i)).harga << endl;
+        if (arr[i].asal == a && arr[i].tujuan == b) {
+            cout << "Ditemukan, harga: " << arr[i].harga << endl;
             return;
         }
     }
@@ -207,15 +205,15 @@ void diurutmerge(Kereta* arr, int l, int r) {
         Kereta temp[MAX];
         int i = l, j = m + 1, k = l;
         while (i <= m && j <= r) {
-            if ((*(arr + i)).nama < (*(arr + j)).nama)
-                temp[k++] = *(arr + i++);
+            if (arr[i].nama < arr[j].nama)
+                temp[k++] = arr[i++];
             else
-                temp[k++] = *(arr + j++);
+                temp[k++] = arr[j++];
         }
-        while (i <= m) temp[k++] = *(arr + i++);
-        while (j <= r) temp[k++] = *(arr + j++);
+        while (i <= m) temp[k++] = arr[i++];
+        while (j <= r) temp[k++] = arr[j++];
         for (int x = l; x <= r; x++)
-            *(arr + x) = temp[x];
+            arr[x] = temp[x];
     }
 }
 
@@ -223,10 +221,10 @@ void urutHarga(Kereta* arr, int total) {
     for (int i = 0; i < total - 1; i++) {
         int p = i;
         for (int j = i + 1; j < total; j++) {
-            if ((*(arr + j)).harga < (*(arr + p)).harga)
+            if (arr[j].harga < arr[p].harga)
                 p = j;
         }
-        if (p != i) swapKereta(arr + i, arr + p);
+        if (p != i) swapKereta(&arr[i], &arr[p]);
     }
 }
 
@@ -236,9 +234,8 @@ int main() {
     dataKereta[2] = {310, "BorNeo", "Balikpapan", "Berau", 200000};
     dataKereta[3] = {412, "Segiri", "Tenggarong", "Bontang", 120000};
     dataKereta[4] = {520, "KalTim", "Samarinda", "Berau", 175000};
-    dataKereta[5] = {999, "Pulang", "Jakarta", "Solo", 999666};
-    dataKereta[6] = {199, "Cepat", "a", "s", 11111};
-    jumlahKereta = 7;
+    dataKereta[5] = {111, "Cepat", "a", "s", 175999};
+    jumlahKereta = 6;
 
     int pilih;
     do {
@@ -254,36 +251,22 @@ int main() {
         cout << "9. Tampil antrian\n";
         cout << "10. Tampil riwayat\n";
         cout << "11. Hapus transaksi terakhir\n";
-        cout << "12. Lihat antrian terdepan dan riwayat terakhir\n";
+        cout << "12. Lihat data terdepan dan terakhir\n";
         cout << "13. Keluar\n";
         cout << "pilih: ";
         cin >> pilih;
 
-        if (pilih == 1) {
-            lihat(dataKereta, jumlahKereta);
-            lanjutsekalianbersih();
-        } 
-        else if (pilih == 2) {
-            tambah(dataKereta, jumlahKereta);
-            lanjutsekalianbersih();
-        } 
-        else if (pilih == 3) {
-            cariRute(dataKereta, jumlahKereta);
-            lanjutsekalianbersih();
-        } 
-        else if (pilih == 4) {
-            cariNomor(dataKereta, jumlahKereta);
-            lanjutsekalianbersih();
-        } 
+        if (pilih == 1) lihat(dataKereta, jumlahKereta);
+        else if (pilih == 2) tambah(dataKereta, jumlahKereta);
+        else if (pilih == 3) cariRute(dataKereta, jumlahKereta);
+        else if (pilih == 4) cariNomor(dataKereta, jumlahKereta);
         else if (pilih == 5) {
             diurutmerge(dataKereta, 0, jumlahKereta - 1);
             lihat(dataKereta, jumlahKereta);
-            lanjutsekalianbersih();
-        } 
+        }
         else if (pilih == 6) {
             urutHarga(dataKereta, jumlahKereta);
             lihat(dataKereta, jumlahKereta);
-            lanjutsekalianbersih();
         }
         else if (pilih == 7) {
             Tiket t;
@@ -291,7 +274,6 @@ int main() {
             cout << "\nNama  : "; getline(cin, t.namaPenumpang);
             cout << "Rute  : "; getline(cin, t.rute);
             enqueue(t);
-            lanjutsekalianbersih();
         }
         else if (pilih == 8) {
             Tiket t;
@@ -299,24 +281,12 @@ int main() {
                 cout << "Diproses: " << t.namaPenumpang << endl;
                 push(t);
             }
-            lanjutsekalianbersih();
         }
-        else if (pilih == 9) {
-            tampilAntrian();
-            lanjutsekalianbersih();
-        }
-        else if (pilih == 10) {
-            tampilRiwayat();
-            lanjutsekalianbersih();
-        }
-        else if (pilih == 11) {
-            pop();
-            lanjutsekalianbersih();
-        }
-        else if (pilih == 12) {
-            peek();
-            lanjutsekalianbersih();
-        }
+        else if (pilih == 9) tampilAntrian();
+        else if (pilih == 10) tampilRiwayat();
+        else if (pilih == 11) pop();
+        else if (pilih == 12) peek();
+        if (pilih != 13) lanjutsekalianbersih();
     } while (pilih != 13);
     cout << "\nKeluar Program";
     return 0;
