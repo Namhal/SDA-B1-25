@@ -54,7 +54,6 @@ BarangNode* tambahBarang(BarangNode* head, string nama, int jumlah) {
 //  */
 void tampilkanStokSembako(BarangNode* head) {
     // --- LENGKAPI KODE DI SINI ---
-    void tampilkanStokSembako(BarangNode* head) {
     if (head == nullptr) {
         cout << "Gudang kosong." << endl;
         return;
@@ -70,7 +69,7 @@ void tampilkanStokSembako(BarangNode* head) {
 
 
     // -----------------------------
-}
+
 
 int main() {
     BarangNode* head = nullptr;
